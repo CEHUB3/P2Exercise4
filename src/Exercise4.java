@@ -2,13 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.ScatteringByteChannel;
 import java.util.*;
 
 public class Exercise4 {
     private Graph<Node> graph = new ListGraph<>();
 
-    public void loadLocationGraph(String fileName)throws IOException {
+    public void loadLocationGraph(String fileName) throws IOException {
         try {
             FileReader fr = new FileReader(fileName);
             BufferedReader br = new BufferedReader(fr);
@@ -50,48 +49,48 @@ public class Exercise4 {
     }
 
     public SortedMap<Integer, SortedSet<Record>> getAlsoLiked(Record item) {
-        SortedMap<Integer, SortedSet<Record>> smir = new TreeMap<>(Collections.reverseOrder());
+        SortedMap<Integer, SortedSet<Record>> recordsByPopularity = new TreeMap<>(Collections.reverseOrder());
         Collection<Edge<Node>> firstEdges = graph.getEdgesFrom(item);
         Set<Person> persons = new HashSet<>();
-        for (Edge<Node> e : firstEdges) {
-            persons.add((Person) e.getDestination());
+        for (Edge<Node> edge : firstEdges) {
+            persons.add((Person) edge.getDestination());
         }
         for (Person p : persons) {
             Collection<Edge<Node>> secondEdges = graph.getEdgesFrom(p);
-            for (Edge<Node> e : secondEdges) {
-                Record r = (Record) e.getDestination();
-                Integer popularity = getPopularity(r);
-                SortedSet<Record> ssr = smir.get(popularity);
-                if (ssr == null) {
-                    ssr = new TreeSet<>(Comparator.comparing(Record::getName));
-                    ssr.add(r);
-                    smir.put(popularity, ssr);
+            for (Edge<Node> edge : secondEdges) {
+                Record record = (Record) edge.getDestination();
+                Integer popularity = getPopularity(record);
+                SortedSet<Record> sortedRecords = recordsByPopularity.get(popularity);
+                if (sortedRecords == null) {
+                    sortedRecords = new TreeSet<>(Comparator.comparing(Record::getName));
+                    sortedRecords.add(record);
+                    recordsByPopularity.put(popularity, sortedRecords);
                 }
-                ssr.add(r);
-                smir.put(popularity, ssr);
+                sortedRecords.add(record);
+                recordsByPopularity.put(popularity, sortedRecords);
             }
         }
-        return smir;
+        return recordsByPopularity;
     }
 
     public int getPopularity(Record item) {
-        Collection<Edge<Node>> cen = graph.getEdgesFrom(item);
-        return cen.size();
+        Collection<Edge<Node>> outDegree = graph.getEdgesFrom(item);
+        return outDegree.size();
     }
 
-    //ej klar
     public SortedMap<Integer, Set<Record>> getTop5() {
         SortedMap<Integer, Set<Record>> recordsByPopularity = new TreeMap<>(Comparator.reverseOrder());
         Set<Node> records = graph.getNodes();
-        for (Node n : records) {
-            if (n instanceof Record r) {
-                int popularity = getPopularity(r);
+        for (Node node : records) {
+            if (node instanceof Record record) {
+                int popularity = getPopularity(record);
                 Set<Record> sortedRecords = recordsByPopularity.get(popularity);
                 if (sortedRecords == null) {
                     sortedRecords = new TreeSet<>(Comparator.comparing(Record::getName));
-                    sortedRecords.add(r);
+                    sortedRecords.add(record);
                     recordsByPopularity.put(popularity, sortedRecords);
-                }sortedRecords.add(r);
+                }
+                sortedRecords.add(record);
                 recordsByPopularity.put(popularity, sortedRecords);
             }
         }
@@ -116,13 +115,13 @@ public class Exercise4 {
             while ((line = br.readLine()) != null) {
                 String[] ownership = line.split(";");
                 for (int i = 0; i < ownership.length; i++) {
-                    Person p = new Person(ownership[0]);
-                    Record r = new Record(ownership[1], ownership[2]);
-                    records.add(r);
-                    graph.add(p);
-                    graph.add(r);
-                    if (graph.getEdgeBetween(p, r) == null) {
-                        graph.connect(p, r, "", 0);
+                    Person person = new Person(ownership[0]);
+                    Record record = new Record(ownership[1], ownership[2]);
+                    records.add(record);
+                    graph.add(person);
+                    graph.add(record);
+                    if (graph.getEdgeBetween(person, record) == null) {
+                        graph.connect(person, record, "", 0);
                     }
                 }
             }
@@ -133,8 +132,5 @@ public class Exercise4 {
         } catch (IOException e) {
             System.err.println("IOfel");
         }
-
-
     }
-
 }
