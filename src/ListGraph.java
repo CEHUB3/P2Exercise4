@@ -52,8 +52,8 @@ public class ListGraph<T> implements Graph<T> {
         Set<Edge<T>> node1CurrentEdges = nodes.get(node1);
         Set<Edge<T>> node2CurrentEdges = nodes.get(node2);
 
-        node1CurrentEdges.add(new Edge(node2, name, weight));
-        node2CurrentEdges.add(new Edge(node1, name, weight));
+        node1CurrentEdges.add(new Edge<T>(node2, name, weight));
+        node2CurrentEdges.add(new Edge<T>(node1, name, weight));
     }
 
     public void disconnect(T node1, T node2) {
